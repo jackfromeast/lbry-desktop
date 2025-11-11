@@ -54,8 +54,31 @@ import 'scss/all.scss';
 const startTime = Date.now();
 analytics.startupEvent();
 
-const { autoUpdater } = remote.require('electron-updater');
-autoUpdater.logger = remote.require('electron-log');
+// For Electron 38+, we need to access main process modules safely
+let autoUpdater, electronLog;
+try {
+  // Try to get from remote (main process)
+  if (remote && remote.app) {
+    const electronUpdater = remote.require('electron-updater');
+    autoUpdater = electronUpdater.autoUpdater;
+    electronLog = remote.require('electron-log');
+    if (autoUpdater && electronLog) {
+      autoUpdater.logger = electronLog;
+    }
+  }
+} catch (e) {
+  console.warn('Could not initialize autoUpdater from remote:', e);
+  // Fallback: create a stub to avoid crashes
+  autoUpdater = {
+    on: () => {},
+    allowPrerelease: false,
+  };
+  electronLog = {
+    info: console.log,
+    error: console.error,
+    warn: console.warn,
+  };
+}
 
 if (LBRY_API_URL) {
   Lbryio.setLocalApi(LBRY_API_URL);

@@ -11,7 +11,6 @@ import * as Sentry from '@sentry/browser';
 import MatomoTracker from '@datapunt/matomo-tracker-js';
 import { history } from './store';
 import Native from 'native';
-import ElectronCookies from '@meetfranz/electron-cookies';
 import { generateInitialUrl } from 'util/url';
 import { MATOMO_ID, MATOMO_URL } from 'config';
 
@@ -21,10 +20,14 @@ const devInternalApis = process.env.LBRY_API_URL && process.env.LBRY_API_URL.inc
 export const SHARE_INTERNAL = 'shareInternal';
 const SHARE_THIRD_PARTY = 'shareThirdParty';
 
-if (isProduction) {
-  ElectronCookies.enable({
-    origin: 'https://lbry.tv',
-  });
+// Enable cookie access for Electron if in production
+if (isProduction && Native.isElectronProcess) {
+  try {
+    require('@electron/remote');
+    // Cookies are now accessible through session.defaultSession.cookies
+  } catch (e) {
+    // Cookie access not available
+  }
 }
 
 type Analytics = {

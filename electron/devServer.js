@@ -45,26 +45,29 @@ app.listen(WEBPACK_ELECTRON_PORT, () => {
   console.log(chalk.yellow.bold(`Renderer listening on port ${WEBPACK_ELECTRON_PORT} (still compiling)`));
 });
 
-mainInstance.waitUntilValid(() => console.log(chalk.green(`${chalk.underline('main')} compilation complete.`)));
-renderInstance.waitUntilValid(() => console.log(chalk.green(`${chalk.underline('render')} compilation complete.`)));
-
 mainInstance.waitUntilValid(() => {
-  console.log(chalk.yellow('Spawning electron...'));
+  console.log(chalk.green(`${chalk.underline('main')} compilation complete.`));
+});
 
-  const electron = require('electron');
-  const proc = require('child_process');
+renderInstance.waitUntilValid(() => {
+  console.log(chalk.green(`${chalk.underline('render')} compilation complete.`));
+  console.log('');
+  console.log(chalk.cyan.bold('===================================='));
+  console.log(chalk.cyan.bold('  Dev server ready!'));
+  console.log(chalk.cyan.bold('===================================='));
+  console.log('');
+  console.log(chalk.yellow('To start Electron, run in a new terminal:'));
+  console.log('');
+  console.log(chalk.green('  yarn electron'));
+  console.log('');
+  console.log(chalk.gray('or directly:'));
+  console.log('');
+  console.log(chalk.green('  electron ./dist/electron/webpack/main.js'));
+  console.log('');
+});
 
-  const child = proc.spawn(electron, ['./dist/electron/webpack/main.js']);
-
-  child.stdout.on('data', data => {
-    console.log(data.toString());
-  });
-
-  process.on('SIGINT', function() {
-    console.log('Killing threads...');
-
-    child.kill('SIGINT');
-    process.exit();
-  });
+process.on('SIGINT', function() {
+  console.log('\nShutting down dev server...');
+  process.exit();
 });
 /* eslint-enable no-console */

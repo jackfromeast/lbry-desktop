@@ -1,5 +1,4 @@
 import { execSync } from 'child_process';
-import isDev from 'electron-is-dev';
 import { ipcRenderer } from 'electron';
 import * as remote from '@electron/remote';
 import * as ACTIONS from 'constants/action_types';
@@ -44,6 +43,9 @@ import analytics, { SHARE_INTERNAL } from 'analytics';
 import { doSignOutCleanup } from 'util/saved-passwords';
 import { doNotificationSocketConnect } from 'redux/actions/websocket';
 import { stringifyServerParam, shouldSetSetting } from 'util/sync-settings';
+
+// Safe isDev check for renderer process
+const isDev = process.env.NODE_ENV === 'development' || (remote && remote.app && !remote.app.isPackaged);
 
 const CHECK_UPGRADE_INTERVAL = 10 * 60 * 1000;
 
